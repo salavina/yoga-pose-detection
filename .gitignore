@@ -160,4 +160,5 @@ cython_debug/
 #.idea/
 
 yoga/
-research/kaggle.json
+*.json
+artifacts/
