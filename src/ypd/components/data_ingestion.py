@@ -23,6 +23,7 @@ class DataIngestion():
             logger.info(f"Downloading data from {dataset_url} to {str(self.config.root_dir)}")
             os.chdir(self.config.root_dir)
             od.download(dataset_url)
+            os.chdir('../../')
             logger.info(f"Downloaded data from {dataset_url} to {str(self.config.root_dir)}")
         
         except Exception as e:
