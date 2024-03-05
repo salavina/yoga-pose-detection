@@ -10,3 +10,8 @@ prepare_base_model:
   root_dir: artifacts/prepare_base_model
   resnet_base_model_path: artifacts/prepare_base_model/resnet_base_model.pth
   resnet_updated_base_model_path: artifacts/prepare_base_model/resnet_updated_base_model.pth
+
+
+model_training:
+  root_dir: artifacts/training
+  resnet_trained_model_path: artifacts/training/resnet_model.pth
