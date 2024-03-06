@@ -1,0 +1,80 @@
+schema: '2.0'
+stages:
+  data_ingestion:
+    cmd: python src/ypd/pipeline/stage_01_data_ingestion.py
+    deps:
+    - path: config/config.yaml
+      hash: md5
+      md5: 9f916d875120bd857da24dadd541ae82
+      size: 506
+    - path: src/ypd/pipeline/stage_01_data_ingestion.py
+      hash: md5
+      md5: b8bd18d27143d985376ebcb55eeb5dae
+      size: 841
+    outs:
+    - path: artifacts/data_ingestion/yoga-poses-dataset
+      hash: md5
+      md5: 38483bf11a8ea1939b1823439762e067.dir
+      size: 316225751
+      nfiles: 1551
+  prepare_base_model:
+    cmd: python src/ypd/pipeline/stage_02_prepare_base_model.py
+    deps:
+    - path: config/config.yaml
+      hash: md5
+      md5: 9f916d875120bd857da24dadd541ae82
+      size: 506
+    - path: src/ypd/pipeline/stage_02_prepare_base_model.py
+      hash: md5
+      md5: f5d8a1187155c7fc1db6ef3e3ad76823
+      size: 861
+    params:
+      params.yaml:
+        CLASSES: 5
+        IMAGE_SIZE:
+        - 3
+        - 224
+        - 224
+        PRETRAINED: true
+    outs:
+    - path: artifacts/prepare_base_model
+      hash: md5
+      md5: 0e4fba8e03c9b15959df0eeec9cf312d.dir
+      size: 91660266
+      nfiles: 2
+  model_training:
+    cmd: python src/ypd/pipeline/stage_03_model_training.py
+    deps:
+    - path: artifacts/data_ingestion/yoga-poses-dataset
+      hash: md5
+      md5: 38483bf11a8ea1939b1823439762e067.dir
+      size: 316225751
+      nfiles: 1551
+    - path: artifacts/prepare_base_model
+      hash: md5
+      md5: 0e4fba8e03c9b15959df0eeec9cf312d.dir
+      size: 91660266
+      nfiles: 2
+    - path: config/config.yaml
+      hash: md5
+      md5: 9f916d875120bd857da24dadd541ae82
+      size: 506
+    - path: src/ypd/pipeline/stage_03_model_training.py
+      hash: md5
+      md5: 98e8d62ee841c7cc7f06a0a76ebe021b
+      size: 842
+    params:
+      params.yaml:
+        AUGMENTATION: true
+        BATCH_SIZE: 16
+        EPOCHS: 5
+        IMAGE_SIZE:
+        - 3
+        - 224
+        - 224
+        LEARNING_RATE: 0.08
+    outs:
+    - path: artifacts/training/resnet_model.pth
+      hash: md5
+      md5: e8ff432bf29c3df146feca5b766d4da7
+      size: 44819595
