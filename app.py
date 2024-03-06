@@ -45,11 +45,3 @@ if __name__ == "__main__":
     
     app.run(host='0.0.0.0', port=8080) #for AWS & local host
     # app.run(host='0.0.0.0', port=80) #for Azure
-    
-
-
-# if __name__ == "__main__":
-#     inference = PredictionPipeline()
-#     image_path = input('enter image path: ')
-#     pred = inference.predict(image_path)
-#     print(pred)
