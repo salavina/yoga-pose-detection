@@ -1,7 +1,16 @@
 from ypd.constants import *
 from ypd.utils.common import read_yaml, create_directories
 from ypd.entity.config_entity import (DataIngestionConfig,
-                                      PrepareBaseModelConfig)
+                                      PrepareBaseModelConfig,
+                                      TrainingConfig)
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+MLFLOW_TRACKING_URI = os.environ["MLFLOW_TRACKING_URI"]
+MLFLOW_TRACKING_USERNAME = os.environ["MLFLOW_TRACKING_USERNAME"]
+MLFLOW_TRACKING_PASSWORD = os.environ["MLFLOW_TRACKING_PASSWORD"]
 
 class configurationManager:
     def __init__(self, config_file_path = CONFIG_FILE_PATH,
@@ -39,3 +48,27 @@ class configurationManager:
         )
         
         return prepare_base_model_config
+    
+    
+    def get_training_config(self) -> TrainingConfig:
+        model_training = self.config.model_training
+        prepare_base_model = self.config.prepare_base_model
+        training_data = os.path.join(self.config.data_ingestion.root_dir, 'yoga-poses-dataset')
+        
+        create_directories([model_training.root_dir])
+        
+        training_config = TrainingConfig(
+            root_dir= model_training.root_dir,
+            resnet_trained_model_path= model_training.resnet_trained_model_path,
+            resnet_updated_base_model_path= prepare_base_model.resnet_updated_base_model_path,
+            training_data= training_data,
+            mlflow_uri = MLFLOW_TRACKING_URI,
+            all_params = self.params,
+            params_augmentation= self.params.AUGMENTATION,
+            params_image_size= self.params.IMAGE_SIZE,
+            params_batch_size= self.params.BATCH_SIZE,
+            params_epochs= self.params.EPOCHS,
+            params_learning_rate= self.params.LEARNING_RATE
+        )
+        
+        return training_config
