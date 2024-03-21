@@ -3,6 +3,7 @@ import torch
 from torchsummary import summary
 from pathlib import Path
 from ypd import logger
+from transformers import ViTImageProcessor, ViTForImageClassification
 from ypd.entity.config_entity import (PrepareBaseModelConfig)
 
 class PrepareBaseModel:
@@ -31,19 +32,32 @@ class PrepareBaseModel:
         return model
     
     def update_base_model(self):
-        self.full_model = self._prepare_full_model(
-            model=self.get_base_model(),
-            classes=self.config.params_classes,
-            freeze_all=True,
-            freeze_till=None
-        )
+        if self.config.params_type.lower() == 'resnet':
+            self.full_model = self._prepare_full_model(
+                model=self.get_base_model(),
+                classes=self.config.params_classes,
+                freeze_all=True,
+                freeze_till=None
+            )
+            
+            self.full_model.to(self.device)
+            summary(self.full_model, input_size=tuple(self.config.params_image_size), device=self.device)
+            self.save_model(checkpoint=self.full_model, path=self.config.resnet_updated_base_model_path)
+            logger.info(f"saved updated ResNet model to {str(self.config.root_dir)}")
         
-        self.full_model.to(self.device)
-        summary(self.full_model, input_size=tuple(self.config.params_image_size), device=self.device)
-        self.save_model(checkpoint=self.full_model, path=self.config.resnet_updated_base_model_path)
-        logger.info(f"saved updated model to {str(self.config.root_dir)}")
+        elif self.config.params_type.lower() == 'vit':
+            vit_processor = ViTImageProcessor.from_pretrained('google/vit-base-patch16-224')
+            vit_model = ViTForImageClassification.from_pretrained('google/vit-base-patch16-224',
+                                                                  num_labels=self.config.params_classes, ignore_mismatched_sizes=True)
+            # changing labels to corresponding class names
+            vit_model.config.id2label = {0: 'downdog', 1: 'goddess', 2: 'plank', 3: 'tree', 4: 'warrior2'}
+            vit_model.config.label2id = {'downdog': 0, 'goddess': 1, 'plank': 2, 'tree': 3, 'warrior2': 4}
+            vit_processor.save_pretrained(self.config.root_dir)
+            vit_model.save_pretrained(self.config.root_dir)
+            print(vit_model)
+            logger.info(f"saved updated ViT model to {str(self.config.root_dir)}")
 
     
     @staticmethod
-    def save_model(checkpoint: dict, path: Path):
+    def save_model(path: Path, checkpoint: dict):
         torch.save(checkpoint, path)

@@ -5,6 +5,8 @@ from torchvision.transforms import Compose, ToTensor, Normalize, \
 Resize, CenterCrop
 import numpy as np
 import os
+from transformers import ViTImageProcessor, ViTForImageClassification
+from transformers import TrainingArguments, Trainer
 
 
 
@@ -54,3 +56,47 @@ class PredictionPipeline:
         
         return labels[np.argmax(y_hat_tensor.detach().cpu().numpy())]
 
+
+
+class PredictionPipelineViT:
+    def __init__(self, trained_model_path=None):
+        self.trained_model_path = trained_model_path if trained_model_path else Path('artifacts/training/')
+        self.processor, self.model = self.load_checkpoint()
+        # self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.device = 'cpu'
+        self.model.to(self.device)
+    
+    
+    def load_model(self, dataset):
+        model_name = "google/vit-base-patch16-224"
+        # mapping integer labels to string labels and vv
+        id2label = dict((k,v) for k,v in enumerate(dataset['train'].features['label'].names))
+        label2id = dict((v,k) for k,v in enumerate(dataset['train'].features['label'].names))
+        processor = ViTImageProcessor.from_pretrained(model_name)
+        model = ViTForImageClassification.from_pretrained(model_name, num_labels=len(id2label), ignore_mismatched_sizes=True, id2label=id2label, label2id=label2id)
+        return processor, model
+    
+    def load_checkpoint(self):
+        processor = ViTImageProcessor.from_pretrained(self.trained_model_path)
+        model = ViTForImageClassification.from_pretrained(self.trained_model_path)
+        return processor, model
+    
+    
+    def _preprocess_image(self, filename):
+        # Load the image and apply the transformation
+        ImageFile.LOAD_TRUNCATED_IMAGES = True
+        image = Image.open(filename)
+        inputs = self.processor(images=image, return_tensors="pt")
+        return inputs
+    
+    
+    def predict(self, filename):
+        self.load_checkpoint()
+        preprocess_image = self._preprocess_image(filename)
+        preprocess_image.to(self.device)
+        outputs = self.model(**preprocess_image)
+        logits = outputs.logits
+        # model predicts one of the 1000 ImageNet classes
+        predicted_class_idx = logits.argmax(-1).item()
+        
+        return self.model.config.id2label[predicted_class_idx]

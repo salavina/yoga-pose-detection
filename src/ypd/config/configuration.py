@@ -42,9 +42,13 @@ class configurationManager:
             root_dir = config.root_dir,
             resnet_base_model_path = config.resnet_base_model_path,
             resnet_updated_base_model_path = config.resnet_updated_base_model_path,
+            vit_feature_extractor = config.vit_feature_extractor,
+            vit_config = config.vit_config,
+            vit_updated_base_model_path = config.vit_updated_base_model_path,
             params_classes = self.params.CLASSES,
             params_image_size = self.params.IMAGE_SIZE,
-            params_pretrained = self.params.PRETRAINED
+            params_pretrained = self.params.PRETRAINED,
+            params_type = self.params.TYPE
         )
         
         return prepare_base_model_config
@@ -61,6 +65,7 @@ class configurationManager:
             root_dir= model_training.root_dir,
             resnet_trained_model_path= model_training.resnet_trained_model_path,
             resnet_updated_base_model_path= prepare_base_model.resnet_updated_base_model_path,
+            vit_trained_model_path= model_training.vit_trained_model_path,
             training_data= training_data,
             mlflow_uri = MLFLOW_TRACKING_URI,
             all_params = self.params,

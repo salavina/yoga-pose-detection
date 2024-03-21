@@ -10,8 +10,12 @@ prepare_base_model:
   root_dir: artifacts/prepare_base_model
   resnet_base_model_path: artifacts/prepare_base_model/resnet_base_model.pth
   resnet_updated_base_model_path: artifacts/prepare_base_model/resnet_updated_base_model.pth
+  vit_feature_extractor: artifacts/prepare_base_model/preprocessor_config.json
+  vit_updated_base_model_path: artifacts/prepare_base_model/model.safetensors
+  vit_config: artifacts/prepare_base_model/config.json
 
 
 model_training:
   root_dir: artifacts/training
   resnet_trained_model_path: artifacts/training/resnet_model.pth
+  vit_trained_model_path: artifacts/training/

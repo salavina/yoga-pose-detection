@@ -1,11 +1,12 @@
 AUGMENTATION: True
 # in pytorch the image size is represented as  [channels, height, width] and in tensorflow it is [height, width, channels]
 IMAGE_SIZE: [3, 224, 224] # as per resnet18
-BATCH_SIZE: 16
+BATCH_SIZE: 8
 INCLUDE_TOP: False
-EPOCHS: 5
+EPOCHS: 2
 CLASSES: 5
 WEIGHTS: imagenet
-LEARNING_RATE: 0.08
+LEARNING_RATE: 0.00002
 PRETRAINED: True
+TYPE: vit
 # DEVICE: cuda
